@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -45,7 +46,7 @@ func FuncDocs2Pdf(command string, fileSrcPath string, fileOutDir string, convert
 	//convert
 	cmd := exec.Command(command, "--invisible", "--convert-to", converterType,
 		fileSrcPath, "--outdir", fileOutDir)
-	byteByStat, errByCmdStart := cmd.Output()
+	_, errByCmdStart := cmd.Output()
 	//命令调用转换失败
 	if errByCmdStart != nil {
 		return "", errByCmdStart
@@ -57,22 +58,25 @@ func FuncDocs2Pdf(command string, fileSrcPath string, fileOutDir string, convert
 	} else {
 		fileOutPath += ".pdf"
 	}
-	fmt.Println("文件转换成功...", string(byteByStat))
+	// fmt.Println("文件转换成功...", string(byteByStat))
 	return fileOutPath, nil
 }
 
 func main() {
+	// 解析参数
+	var doc string
+	flag.StringVar(&doc, "doc", "test.docx", "word文件")
+	flag.Parse()
+
 	var command string = "soffice"
-	// var fileSrcPath string = "./liangyang.doc"
-	var fileSrcPath string = "./test.docx"
+	var fileSrcPath string = "./doc_files/" + doc
 	var fileOutDir string = "./pdf_files"
 	var converterType string = "pdf"
 
-	pdf_path, err := FuncDocs2Pdf(command, fileSrcPath, fileOutDir, converterType)
+	_, err := FuncDocs2Pdf(command, fileSrcPath, fileOutDir, converterType)
 
-	if err == nil {
-		fmt.Println("pdf_path", pdf_path)
-	} else {
-		fmt.Println("has error", err)
+	if err != nil {
+		fmt.Println("has error", err.Error())
 	}
+	fmt.Println("文件转换成功")
 }
